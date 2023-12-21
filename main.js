@@ -20,12 +20,12 @@ type module = {
 let module_data = await d3.json('data/modules.json', (d) => console.log(d));
 
 // Canvas Config
-let width = 1920 / 3;
-let height = 1080 / 3;
+let width = 1920 / 2;
+let height = 1080 / 2;
 
 // Module Config
-let module_width = 20;
-let size_per_ects = 20;
+let module_width = 80;
+let size_per_ects = 15;
 let ectsPixelrange = (data) => [
 	d3.min(data, (d) => d.ects_module) * size_per_ects,
 	d3.max(data, (d) => d.ects_module) * size_per_ects,
@@ -52,7 +52,7 @@ function update(data) {
 	for (let sem = 0; sem <= 8; sem++) {
 		let semester_data = data.filter((d) => d.semester_nr == sem);
 		// console.log(`semester_data (semester ${sem}):`);
-		// console.log(semester_data);
+		console.log(semester_data);
 
 		dataviz
 			.append('g')
@@ -71,7 +71,13 @@ function update(data) {
 			.attr('width', module_width)
 			.attr('height', (d) => ectsRamp(d.ects_module))
 			.attr('x', (d) => d.semester_nr * module_width)
-			.attr('y', (d) => ectsRamp(d.ects_module))
+			.attr('y', (d, i) => {
+				let y = 0;
+				for (let module = 0; module < i; module++) {
+					y += ectsRamp(semester_data[module].ects_module);
+				}
+				return y;
+			})
 			.attr('rx', 5)
 			.attr('ry', 5)
 			.style('fill', 'green');
@@ -84,7 +90,13 @@ function update(data) {
 			.attr('width', module_width)
 			.attr('height', (d) => ectsRamp(d.ects_module))
 			.attr('x', (d) => d.semester_nr * module_width)
-			.attr('y', (d) => ectsRamp(d.ects_module))
+			.attr('y', (d, i) => {
+				let y = 0;
+				for (let module = 0; module < i; module++) {
+					y += ectsRamp(semester_data[module].ects_module);
+				}
+				return y;
+			})
 			.attr('rx', 5)
 			.attr('ry', 5)
 			.style('fill', 'green');
