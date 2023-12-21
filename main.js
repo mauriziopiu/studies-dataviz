@@ -17,57 +17,82 @@ type module = {
 }
 */
 
-let data = await d3.json('data/modules.json', (d) => console.log(d));
-//let data = [2, 4, 6, 4, 4, 6, 2, 4];
-//let dataviz = d3.select('#data-viz');
+let module_data = await d3.json('data/modules.json', (d) => console.log(d));
 
+// Canvas Config
 let width = 1920 / 3;
 let height = 1080 / 3;
 
+// Module Config
 let module_width = 20;
 let size_per_ects = 20;
 let ectsPixelrange = (data) => [
-  d3.min(data, (d) => d.ects_module) * size_per_ects,
-  d3.max(data, (d) => d.ects_module) * size_per_ects,
+	d3.min(data, (d) => d.ects_module) * size_per_ects,
+	d3.max(data, (d) => d.ects_module) * size_per_ects,
 ];
 
 function update(data) {
-  let ectsRamp = d3
-    .scaleLinear()
-    .domain([
-      d3.min(data, (d) => d.ects_module),
-      d3.max(data, (d) => d.ects_module),
-    ])
-    .range(ectsPixelrange(data));
+	let ectsRamp = d3
+		.scaleLinear()
+		.domain([
+			d3.min(data, (d) => d.ects_module),
+			d3.max(data, (d) => d.ects_module),
+		])
+		.range(ectsPixelrange(data));
 
-  let dataviz = d3
-    .select('#data-viz')
-    .attr('width', width)
-    .attr('height', height)
-    .style('background', 'lightblue')
-    .on('click', () => {
-      console.log('click registered - reloading');
-    });
+	let dataviz = d3
+		.select('#data-viz')
+		.attr('width', width)
+		.attr('height', height)
+		.style('background', 'lightblue')
+		.on('click', () => {
+			console.log('click registered - reloading');
+		});
 
-  let selection = dataviz
-    .selectAll('.module')
-    .data(data)
-    .attr('width', module_width)
-    .attr('height', (d) => ectsRamp(d.ects_module))
-    .attr('x', (d, i) => i * module_width);
+	for (let sem = 0; sem <= 8; sem++) {
+		let semester_data = data.filter((d) => d.semester_nr == sem);
+		// console.log(`semester_data (semester ${sem}):`);
+		// console.log(semester_data);
 
-  selection
-    .enter()
-    .append('rect')
-    .attr('class', 'module')
-    .attr('width', module_width)
-    .attr('height', (d) => ectsRamp(d.ects_module))
-    .attr('x', (d, i) => i * module_width)
-    .attr('y', (d) => height - ectsRamp(d.ects_module));
+		dataviz
+			.append('g')
+			.attr('class', `semester sem${sem}`)
+			.attr('width', module_width)
+			.attr('height', height)
+			.attr('x', () => (sem + 1) * module_width);
 
-  selection.exit().remove();
+		let semesterSelection = dataviz
+			.select(`g.sem${sem}`)
+			.selectAll('.module')
+			.data(semester_data);
 
-  dataviz.data(data).enter().append();
+		// update
+		semesterSelection
+			.attr('width', module_width)
+			.attr('height', (d) => ectsRamp(d.ects_module))
+			.attr('x', (d) => d.semester_nr * module_width)
+			.attr('y', (d) => ectsRamp(d.ects_module))
+			.attr('rx', 5)
+			.attr('ry', 5)
+			.style('fill', 'green');
+
+		// enter
+		semesterSelection
+			.enter()
+			.append('rect')
+			.attr('class', 'module')
+			.attr('width', module_width)
+			.attr('height', (d) => ectsRamp(d.ects_module))
+			.attr('x', (d) => d.semester_nr * module_width)
+			.attr('y', (d) => ectsRamp(d.ects_module))
+			.attr('rx', 5)
+			.attr('ry', 5)
+			.style('fill', 'green');
+
+		semesterSelection.exit().remove();
+
+		dataviz.data(semester_data).enter().append();
+	}
 }
 
-update(data);
+update(module_data);
