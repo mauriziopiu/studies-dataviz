@@ -24,7 +24,7 @@ let width = 1920 / 2;
 let height = 1080 / 2;
 
 // Module Config
-let module_width = 80;
+let module_width = 105;
 let size_per_ects = 15;
 let ectsPixelrange = (data) => [
 	d3.min(data, (d) => d.ects_module) * size_per_ects,
@@ -52,7 +52,7 @@ function update(data) {
 	for (let sem = 0; sem <= 8; sem++) {
 		let semester_data = data.filter((d) => d.semester_nr == sem);
 		// console.log(`semester_data (semester ${sem}):`);
-		console.log(semester_data);
+		// console.log(semester_data);
 
 		dataviz
 			.append('g')
@@ -82,6 +82,20 @@ function update(data) {
 			.attr('ry', 5)
 			.style('fill', 'green');
 
+		semesterSelection
+			.select('text.module-name')
+			.html((d) => d.module_name.slice(0, 12))
+			.attr('width', module_width)
+			.attr('x', (d) => d.semester_nr * module_width + 2)
+			.attr('y', (d, i) => {
+				let y = 0;
+				for (let module = 0; module < i; module++) {
+					y += ectsRamp(semester_data[module].ects_module);
+				}
+				return y + size_per_ects;
+			})
+			.style('fill', 'white');
+
 		// enter
 		semesterSelection
 			.enter()
@@ -99,7 +113,26 @@ function update(data) {
 			})
 			.attr('rx', 5)
 			.attr('ry', 5)
-			.style('fill', 'green');
+			.style('fill', 'green')
+			.style('stroke', 'black')
+			.append('text')
+			.html((d) => d.module_name);
+
+		semesterSelection
+			.enter()
+			.append('text')
+			.attr('class', 'module-name')
+			.html((d) => d.module_name.slice(0, 12))
+			.attr('width', module_width)
+			.attr('x', (d) => d.semester_nr * module_width + 2)
+			.attr('y', (d, i) => {
+				let y = 0;
+				for (let module = 0; module < i; module++) {
+					y += ectsRamp(semester_data[module].ects_module);
+				}
+				return y + size_per_ects;
+			})
+			.style('fill', 'white');
 
 		semesterSelection.exit().remove();
 
