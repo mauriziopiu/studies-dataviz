@@ -2,6 +2,7 @@ html,
 body {
 	background-color: #fef8eb;
 	font-family: 'Helvetica', Arial, sans-serif;
+	overflow-wrap: break-word;
 }
 
 svg {
@@ -9,4 +10,8 @@ svg {
 	background-color: #f2c288;
 	border: 1px solid #13160f;
 	border-radius: 5px;
+}
+
+.module-name {
+	overflow-wrap: break-word;
 }
