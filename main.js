@@ -17,18 +17,29 @@ type module = {
 }
 */
 
-let data = d3.json('data/data.json', (d) => console.log(d));
+let data = await d3.json('data/modules.json', (d) => console.log(d));
+//let data = [2, 4, 6, 4, 4, 6, 2, 4];
 //let dataviz = d3.select('#data-viz');
 
 let width = 1920 / 3;
 let height = 1080 / 3;
 
 let module_width = 20;
+let size_per_ects = 20;
+let ectsPixelrange = (data) => [
+  d3.min(data, (d) => d.ects_module) * size_per_ects,
+  d3.max(data, (d) => d.ects_module) * size_per_ects,
+];
 
-console.log('data');
-console.log(data);
+function update(data) {
+  let ectsRamp = d3
+    .scaleLinear()
+    .domain([
+      d3.min(data, (d) => d.ects_module),
+      d3.max(data, (d) => d.ects_module),
+    ])
+    .range(ectsPixelrange(data));
 
-function update() {
   let dataviz = d3
     .select('#data-viz')
     .attr('width', width)
@@ -36,21 +47,23 @@ function update() {
     .style('background', 'lightblue')
     .on('click', () => {
       console.log('click registered - reloading');
-      update();
     });
 
   let selection = dataviz
     .selectAll('.module')
     .data(data)
     .attr('width', module_width)
-    .attr('height', (d) => d.ects_module);
+    .attr('height', (d) => ectsRamp(d.ects_module))
+    .attr('x', (d, i) => i * module_width);
 
   selection
     .enter()
     .append('rect')
     .attr('class', 'module')
     .attr('width', module_width)
-    .attr('height', (d) => d.ects_module);
+    .attr('height', (d) => ectsRamp(d.ects_module))
+    .attr('x', (d, i) => i * module_width)
+    .attr('y', (d) => height - ectsRamp(d.ects_module));
 
   selection.exit().remove();
 
