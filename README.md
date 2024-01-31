@@ -12,7 +12,8 @@ Should you want to feed your own data into this, the block-comment at the top of
 ## Usage Rights, License & Disclaimer
 
 **You may** freely use, adjust/modify and share this code (and resulting visualisations) with other people - as long as you mention me as the original author. If you publicly share adaptations of this work, you have to do it under the same license.
-**You may not** make money with the code in this repository. If you think you have figured out a way to monetize this code, contact me and we will figure out some solution.
+
+**You may not** make money with the code in this repository (unless otherwise discussed). If you think you have figured out a way to monetize this code, contact me and we will figure out some solution.
 
 Basically the CC-BY-NC-SA license. I might update this text as soon as I find the actually appropriate license that says all the stuff from above.
 
