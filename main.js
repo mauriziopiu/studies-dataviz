@@ -11,6 +11,8 @@ type module = {
     module_code: string
     module_group: string
     module_name: string
+    module_full_name: string
+    module_shorthand
     semester_nr: number
     semester_type: string
     status: string
@@ -27,6 +29,25 @@ let colors = {
 	black: '#13160F',
 };
 
+let moduleColors = {
+	a: '#009900',
+	b: '#cc0000',
+	c: '#6600ff',
+	d1: '#0066ff',
+	d2: '#cc6600',
+	h: '#993366',
+};
+
+let colorMap = (module_group) => {
+	if (module_group == 'A') return moduleColors.a; // Basic Modules
+	if (module_group == 'B') return moduleColors.b; // Project & Training, Language
+	if (module_group == 'C') return moduleColors.c; // Specialisation Modules
+	if (module_group == 'D1') return moduleColors.d1; // Technical Elective Module
+	if (module_group == 'D2') return moduleColors.d2; // Blockweeks & General Elective Module
+	if (module_group == 'H') return moduleColors.h; // Optional Elective Module
+	return colors.black;
+};
+
 let module_data = await d3.json('data/modules.json', (d) => console.log(d));
 
 // Canvas Config
@@ -36,6 +57,7 @@ let height = 1080 / 1.5;
 // Data Viz Config
 let x_shift = 30;
 let y_shift = 50;
+let baseline_height = 10;
 
 // Module Config
 let module_width = 130;
@@ -81,6 +103,15 @@ function update(data) {
 			.attr('height', height)
 			.attr('x', () => (sem + 1) * module_width + sem * padding);
 
+		// Semester Label
+		dataviz
+			.select(`g.sem${sem}`)
+			.append('text')
+			.attr('class', 'semester-label')
+			.attr('x', (d) => sem * module_width + sem * padding)
+			.style('margin-bottom', '1rem')
+			.text(`Semester ${sem}`);
+
 		let semesterSelection = dataviz
 			.select(`g.sem${sem}`)
 			.selectAll('.module')
@@ -96,17 +127,17 @@ function update(data) {
 				for (let module = 0; module < i; module++) {
 					y += ectsRamp(semester_data[module].ects_module);
 				}
-				return y;
+				return y + baseline_height;
 			})
 			.attr('rx', 5)
 			.attr('ry', 5)
-			.style('fill', colors.blue)
+			.style('fill', (d) => colorMap(d.module_group))
 			.style('stroke', colors.black);
 
 		// UPDATE TEXT
 		semesterSelection
 			.select('text.module-name')
-			.text((d) => d.module_name.slice(0, characters))
+			.text((d) => d.module_name)
 			.attr('width', module_width)
 			.attr('x', (d) => sem * (module_width + padding) + 2)
 			.attr('y', (d, i) => {
@@ -114,7 +145,7 @@ function update(data) {
 				for (let module = 0; module < i; module++) {
 					y += ectsRamp(semester_data[module].ects_module);
 				}
-				return y + size_per_ects;
+				return y + size_per_ects + baseline_height;
 			})
 			.style('fill', colors.white);
 
@@ -131,11 +162,11 @@ function update(data) {
 				for (let module = 0; module < i; module++) {
 					y += ectsRamp(semester_data[module].ects_module);
 				}
-				return y + i * padding;
+				return y + i * padding + baseline_height;
 			})
 			.attr('rx', 5)
 			.attr('ry', 5)
-			.style('fill', colors.blue)
+			.style('fill', (d) => colorMap(d.module_group))
 			.style('stroke', colors.black)
 			.append('text')
 			.html((d) => d.module_name);
@@ -145,7 +176,7 @@ function update(data) {
 			.enter()
 			.append('text')
 			.attr('class', 'module-name')
-			.text((d) => d.module_name.slice(0, characters))
+			.text((d) => d.module_name)
 			.attr('width', module_width)
 			.attr('x', (d) => sem * (module_width + padding) + 2)
 			.attr('y', (d, i) => {
@@ -153,7 +184,7 @@ function update(data) {
 				for (let module = 0; module < i; module++) {
 					y += ectsRamp(semester_data[module].ects_module);
 				}
-				return y + size_per_ects + i * padding;
+				return y + size_per_ects + i * padding + baseline_height;
 			})
 			.style('fill', colors.white);
 
